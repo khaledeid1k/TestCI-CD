@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
     alias(libs.plugins.google.firebase.appdistribution)
+    jacoco
 }
 
 android {
@@ -22,6 +23,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -31,8 +33,13 @@ android {
             )
             firebaseAppDistribution {
                 releaseNotesFile="/path/to/releasenotes.txt"
-                testers="ali@example.com, bri@example.com, cal@example.com"
+
             }
+        }
+        debug {
+            isMinifyEnabled = false
+            enableAndroidTestCoverage = true
+            enableUnitTestCoverage = true
         }
     }
     compileOptions {
@@ -45,6 +52,8 @@ android {
     buildFeatures {
         compose = true
     }
+
+    jacoco.jacocoVersion= "0.8.13"
 }
 
 dependencies {
