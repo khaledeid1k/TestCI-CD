@@ -55,7 +55,7 @@ jobs:
         run: ./gradlew jacocoTestCoverageVerification
 
 
-deploy:
+  deploy:
   name: 🚀 Deploy to Firebase
   runs-on: ubuntu-latest
   needs: test_coverage
