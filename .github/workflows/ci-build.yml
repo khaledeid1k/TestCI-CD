@@ -80,16 +80,12 @@ jobs:
       - name: Set up Gradle
         uses: gradle/gradle-build-action@v3
 
-      - name: Debug environment
-        run: |
-          ls -la
-          pwd
-          whoami
-          env
+      - name: Execute Gradle Command - assembleDebug
+        run: ./gradlew assembleDebug
 
-      - name: Decode Firebase Service Account Key
-        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > serviceAccountKey.json
-
+#      - name: Decode Firebase Service Account Key
+#        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" > serviceAccountKey.json
+#
       - name: Build Release Bundle
         run: ./gradlew bundleRelease
 
@@ -97,8 +93,8 @@ jobs:
         uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
-          token: ${{ secrets.FIREBASE_TOKEN }}
-          serviceCredentialsFile: serviceAccountKey.json
+#          token: ${{ secrets.FIREBASE_TOKEN }}
+          serviceCredentialsFile: ${{secrets.FIREBASE_SERVICE_ACCOUNT}}
           releaseNotes: "Automated build from develop"
           groups: testers
-          file: app/build/outputs/bundle/release/app-release.aab
+          file: app/build/outputs/apk/debug/app-debug.apk
