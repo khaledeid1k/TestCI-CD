@@ -9,6 +9,7 @@ plugins {
     jacoco
 }
 
+
 android {
     namespace = "com.example.testci_cd"
     compileSdk = 35
@@ -32,7 +33,7 @@ android {
                 "proguard-rules.pro"
             )
             firebaseAppDistribution {
-                releaseNotesFile="/path/to/releasenotes.txt"
+                releaseNotesFile = "/path/to/releasenotes.txt"
 
             }
         }
@@ -52,9 +53,35 @@ android {
     buildFeatures {
         compose = true
     }
+    subprojects {
+        afterEvaluate {
+            tasks.withType<Test> {
+                configure<JacocoTaskExtension> {
+                    isIncludeNoLocationClasses = true
+                }
+            }
+        }
+    }
+    tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
+        dependsOn("testDebugUnitTest")
+        violationRules {
+            rule {
+                limit {
+                    minimum = BigDecimal("0.0") // Fail build if coverage < 50%
+                }
+            }
+        }
 
-    jacoco.jacocoVersion= "0.8.13"
+    }
 }
+jacoco {
+    toolVersion = "0.8.13"
+    reportsDirectory = layout.buildDirectory.dir("customJacocoReportDir")
+
+}
+
+
+
 
 dependencies {
 
