@@ -67,7 +67,7 @@ android {
         violationRules {
             rule {
                 limit {
-                    minimum = BigDecimal("0.0") // Fail build if coverage < 50%
+                    minimum = BigDecimal("0.1") // Fail build if coverage < 50%
                 }
             }
         }
