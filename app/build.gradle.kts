@@ -82,7 +82,7 @@ jacoco {
 
 firebaseAppDistribution {
     appId = "1:656562619194:android:fbc41d15255f100dfe0603"
-    serviceCredentialsFile = "path/to/service-account-key.json"
+    serviceCredentialsFile = "service-account-key.json"
     artifactType = "APK"
 }
 
