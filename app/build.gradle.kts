@@ -33,7 +33,7 @@ android {
                 "proguard-rules.pro"
             )
             firebaseAppDistribution {
-                releaseNotesFile = "/path/to/releasenotes.txt"
+                appId = "1:656562619194:android:fbc41d15255f100dfe0603"
 
             }
         }
@@ -41,7 +41,12 @@ android {
             isMinifyEnabled = false
             enableAndroidTestCoverage = true
             enableUnitTestCoverage = true
+            firebaseAppDistribution {
+                appId = "1:656562619194:android:fbc41d15255f100dfe0603"
+                serviceCredentialsFile = "path/to/service-account-key.json"
+            }
         }
+
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -67,7 +72,7 @@ android {
         violationRules {
             rule {
                 limit {
-                    minimum = BigDecimal("0.0") // Fail build if coverage < 50%
+                    minimum = BigDecimal("0.0")
                 }
             }
         }
