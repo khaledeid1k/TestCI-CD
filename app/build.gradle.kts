@@ -1,4 +1,5 @@
 import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
+import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -32,19 +33,12 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            firebaseAppDistribution {
-                appId = "1:656562619194:android:fbc41d15255f100dfe0603"
-
-            }
         }
         debug {
+            isDebuggable = true
             isMinifyEnabled = false
             enableAndroidTestCoverage = true
             enableUnitTestCoverage = true
-            firebaseAppDistribution {
-                appId = "1:656562619194:android:fbc41d15255f100dfe0603"
-                serviceCredentialsFile = "path/to/service-account-key.json"
-            }
         }
 
     }
@@ -86,7 +80,11 @@ jacoco {
 }
 
 
-
+firebaseAppDistribution {
+    appId = "1:656562619194:android:fbc41d15255f100dfe0603"
+    serviceCredentialsFile = "path/to/service-account-key.json"
+    artifactType = "APK"
+}
 
 dependencies {
 
