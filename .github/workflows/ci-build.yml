@@ -55,7 +55,7 @@ jobs:
       - name: Verify JaCoCo Coverage
         run: ./gradlew jacocoTestCoverageVerification
 
-  distribute:
+  deploy:
     name: 📱 Distribute to Firebase App Distribution
     runs-on: ubuntu-latest
     needs: build
