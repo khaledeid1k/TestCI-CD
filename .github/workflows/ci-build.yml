@@ -82,18 +82,22 @@ jobs:
           npm install -g firebase-tools
           firebase --version
 
+      - name: Decode Service Account Key
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+        run: echo $FIREBASE_SERVICE_ACCOUNT_KEY | base64 -d > service-account-key.json
+
+
       - name: Test Firebase CLI Authentication
         run: firebase projects:list
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+            GOOGLE_APPLICATION_CREDENTIALS: service-account-key.json
+
 
       - name: Distribute Debug APK to Firebase App Distribution
         run: ./gradlew appDistributionUploadDebug --stacktrace
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
-          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
-
-
+            FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
 #  deploy:
 #    name: 🚀 Deploy to Firebase
 #    runs-on: ubuntu-latest
