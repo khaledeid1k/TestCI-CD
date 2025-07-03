@@ -82,10 +82,16 @@ jobs:
           npm install -g firebase-tools
           firebase --version
 
-      - name: Distribute Debug APK to Firebase App Distribution
-        run: ./gradlew appDistributionUploadDebug
+      - name: Test Firebase CLI Authentication
+        run: firebase projects:list
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Distribute Debug APK to Firebase App Distribution
+        run: ./gradlew appDistributionUploadDebug --stacktrace
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
 
 
 #  deploy:
