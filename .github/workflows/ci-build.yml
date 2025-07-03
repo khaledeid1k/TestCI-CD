@@ -56,7 +56,7 @@ jobs:
         run: ./gradlew jacocoTestCoverageVerification
 
   deploy:
-    name: 📱 Distribute to Firebase App Distribution
+    name: 📱 Distribute Debug APK to Firebase App Distribution
     runs-on: ubuntu-latest
     needs: compile
     if: github.event_name == 'push'
@@ -74,13 +74,16 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug
+
       - name: Set up Firebase CLI
         run: |
           npm install -g firebase-tools
           firebase --version
 
-      - name: Distribute to Firebase App Distribution
-        run: ./gradlew appDistributionUploadRelease
+      - name: Distribute Debug APK to Firebase App Distribution
+        run: ./gradlew appDistributionUploadDebug
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
