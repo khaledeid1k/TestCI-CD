@@ -91,6 +91,10 @@ jobs:
 #          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
 #          file: app/build/outputs/apk/debug/app-debug.apk
 
+      - name: Save Service Account Key
+        env:
+          FIREBASE_SERVICE_ACCOUNT_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+        run: echo "$FIREBASE_SERVICE_ACCOUNT_KEY" > service-account-key.json
 
       - name: Set up Firebase CLI
         run: |
