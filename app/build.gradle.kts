@@ -72,7 +72,6 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     group = "Reporting"
     description = "Generate JaCoCo coverage reports."
 
-    // Force task to run even if no execution data exists
     onlyIf { true }
 
     reports {
@@ -113,7 +112,10 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 }
 
 tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
-    dependsOn("testDebugUnitTest")
+    dependsOn("testDebugUnitTest", "jacocoTestReport")
+    group = "Verification"
+    description = "Verify JaCoCo coverage metrics."
+
     violationRules {
         rule {
             limit {
@@ -121,6 +123,24 @@ tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
             }
         }
     }
+
+    val javaClasses = fileTree(layout.buildDirectory.dir("classes/java/debug")) {
+        exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*")
+    }
+    val kotlinClasses = fileTree(layout.buildDirectory.dir("classes/kotlin/debug")) {
+        exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*")
+    }
+    classDirectories.setFrom(files(javaClasses, kotlinClasses))
+    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
+    executionData.setFrom(fileTree(layout.buildDirectory) {
+        include("jacoco/testDebugUnitTest.exec")
+    })
+}
+
+tasks.register("testCoverage") {
+    group = "Verification"
+    description = "Runs unit tests and generates JaCoCo coverage report."
+    dependsOn("testDebugUnitTest", "jacocoTestReport")
 }
 
 

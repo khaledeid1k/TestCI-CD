@@ -1,6 +1,8 @@
 package com.example.testci_cd.ui
 
+import junit.framework.TestCase.assertEquals
 import org.junit.Test
+import kotlin.test.assertEquals
 
 class SumTest {
 
@@ -8,7 +10,6 @@ class SumTest {
     fun testSumTwoNumbers() {
         val sum = Sum()
         val result = sum.sumTwoNumbers(2, 3)
-        assert(result == 5) { "Expected 5, but got $result" }
-
+        assertEquals(5, result, "Expected 5, but got $result")
     }
 }
