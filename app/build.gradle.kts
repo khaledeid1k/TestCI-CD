@@ -84,7 +84,7 @@ jacoco {
 
 firebaseAppDistribution {
     appId = System.getenv("FIREBASE_APP_ID")
-    serviceCredentialsFile = System.getenv("FIREBASE_SERVICE_ACCOUNT_KEY")
+    serviceCredentialsFile = "service-account-key.json"
     artifactType = "APK"
 }
 
