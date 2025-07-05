@@ -52,56 +52,66 @@ android {
     buildFeatures {
         compose = true
     }
-    subprojects {
-        afterEvaluate {
-            tasks.withType<Test> {
-                configure<JacocoTaskExtension> {
-                    isIncludeNoLocationClasses = true
-                }
-            }
-        }
-    }
-    tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
-        dependsOn("testDebugUnitTest")
-        violationRules {
-            rule {
-                limit {
-                    minimum = BigDecimal("0.0")
-                }
-            }
-        }
 
-    }
-    tasks.register<JacocoReport>("jacocoTestReport") {
-        dependsOn("testDebugUnitTest")
-        group = "Reporting"
-        description = "Generate JaCoCo coverage reports."
-
-        reports {
-            xml.required = true
-            csv.required = true
-            html.required = true
-        }
-
-        val javaClasses = fileTree(layout.buildDirectory.dir("classes/java/debug")) {
-            exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*")
-        }
-        val kotlinClasses = fileTree(layout.buildDirectory.dir("classes/kotlin/debug")) {
-            exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*")
-        }
-        classDirectories.setFrom(files(javaClasses, kotlinClasses))
-        sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
-        executionData.setFrom(fileTree(layout.buildDirectory) {
-            include("jacoco/testDebugUnitTest.exec")
-        })
-    }
 }
 jacoco {
     toolVersion = "0.8.13"
     reportsDirectory = layout.buildDirectory.dir("customJacocoReportDir")
-
 }
 
+tasks.withType<Test> {
+    configure<JacocoTaskExtension> {
+        isIncludeNoLocationClasses = true
+        excludes = listOf("jdk.internal.*")
+    }
+}
+
+tasks.register<JacocoReport>("jacocoTestReport") {
+    dependsOn("testDebugUnitTest")
+    group = "Reporting"
+    description = "Generate JaCoCo coverage reports."
+
+    reports {
+        xml.required.set(true)
+        csv.required.set(true)
+        html.required.set(true)
+        html.outputLocation.set(layout.buildDirectory.dir("customJacocoReportDir/html"))
+        xml.outputLocation.set(layout.buildDirectory.file("customJacocoReportDir/jacoco.xml"))
+        csv.outputLocation.set(layout.buildDirectory.file("customJacocoReportDir/jacoco.csv"))
+    }
+
+    val javaClasses = fileTree(layout.buildDirectory.dir("classes/java/debug")) {
+        exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*")
+    }
+    val kotlinClasses = fileTree(layout.buildDirectory.dir("classes/kotlin/debug")) {
+        exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*")
+    }
+    classDirectories.setFrom(files(javaClasses, kotlinClasses))
+    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
+    executionData.setFrom(fileTree(layout.buildDirectory) {
+        include("jacoco/testDebugUnitTest.exec")
+    })
+
+    doLast {
+        val reportDir = layout.buildDirectory.dir("customJacocoReportDir").get().asFile
+        if (reportDir.exists() && reportDir.listFiles()?.isNotEmpty() == true) {
+            logger.lifecycle("JaCoCo reports generated at: ${reportDir.absolutePath}")
+        } else {
+            logger.warn("No JaCoCo reports generated in ${reportDir.absolutePath}")
+        }
+    }
+}
+
+tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
+    dependsOn("testDebugUnitTest")
+    violationRules {
+        rule {
+            limit {
+                minimum = BigDecimal("0.0")
+            }
+        }
+    }
+}
 
 
 
