@@ -11,6 +11,7 @@ plugins {
 }
 
 
+
 android {
     namespace = "com.example.testci_cd"
     compileSdk = 35
@@ -71,6 +72,9 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     group = "Reporting"
     description = "Generate JaCoCo coverage reports."
 
+    // Force task to run even if no execution data exists
+    onlyIf { true }
+
     reports {
         xml.required.set(true)
         csv.required.set(true)
@@ -94,6 +98,12 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 
     doLast {
         val reportDir = layout.buildDirectory.dir("customJacocoReportDir").get().asFile
+        val execFile = fileTree(layout.buildDirectory) { include("jacoco/testDebugUnitTest.exec") }
+        if (execFile.isEmpty()) {
+            logger.warn("No JaCoCo execution data found at build/jacoco/testDebugUnitTest.exec")
+        } else {
+            logger.lifecycle("Execution data found: ${execFile.files.joinToString()}")
+        }
         if (reportDir.exists() && reportDir.listFiles()?.isNotEmpty() == true) {
             logger.lifecycle("JaCoCo reports generated at: ${reportDir.absolutePath}")
         } else {
@@ -140,4 +150,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+    testImplementation(kotlin("test"))
 }
