@@ -72,6 +72,29 @@ android {
         }
 
     }
+    tasks.register<JacocoReport>("jacocoTestReport") {
+        dependsOn("testDebugUnitTest")
+        group = "Reporting"
+        description = "Generate JaCoCo coverage reports."
+
+        reports {
+            xml.required = true
+            csv.required = true
+            html.required = true
+        }
+
+        val javaClasses = fileTree(layout.buildDirectory.dir("classes/java/debug")) {
+            exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*")
+        }
+        val kotlinClasses = fileTree(layout.buildDirectory.dir("classes/kotlin/debug")) {
+            exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*")
+        }
+        classDirectories.setFrom(files(javaClasses, kotlinClasses))
+        sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
+        executionData.setFrom(fileTree(layout.buildDirectory) {
+            include("jacoco/testDebugUnitTest.exec")
+        })
+    }
 }
 jacoco {
     toolVersion = "0.8.13"
