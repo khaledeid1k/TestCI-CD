@@ -56,93 +56,43 @@ android {
 
 }
 jacoco {
-    toolVersion = "0.8.13"
-    reportsDirectory = layout.buildDirectory.dir("customJacocoReportDir")
-}
-
-tasks.withType<Test> {
-    configure<JacocoTaskExtension> {
-        isIncludeNoLocationClasses = true
-        excludes = listOf("jdk.internal.*")
-    }
+    toolVersion = "0.8.11"
 }
 
 tasks.register<JacocoReport>("jacocoTestReport") {
     dependsOn("testDebugUnitTest")
-    group = "Reporting"
-    description = "Generate JaCoCo coverage reports."
-
-    onlyIf { true }
 
     reports {
         xml.required.set(true)
-        csv.required.set(true)
         html.required.set(true)
-        html.outputLocation.set(layout.buildDirectory.dir("customJacocoReportDir/html"))
-        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/testCoverage/testCoverage.xml"))
-        csv.outputLocation.set(layout.buildDirectory.file("customJacocoReportDir/jacoco.csv"))
+        xml.outputLocation.set(file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml"))
+        html.outputLocation.set(file("${buildDir}/reports/jacoco/test/html"))
     }
 
-    val javaClasses = fileTree(layout.buildDirectory.dir("classes/java/debug")) {
-        exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*")
-    }
-    val kotlinClasses = fileTree(layout.buildDirectory.dir("classes/kotlin/debug")) {
-        exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*")
-    }
-    classDirectories.setFrom(files(javaClasses, kotlinClasses))
-    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
-    executionData.setFrom(fileTree(layout.buildDirectory) {
-        include("jacoco/testDebugUnitTest.exec")
-    })
+    val debugTree = fileTree("${buildDir}/tmp/kotlin-classes/debug")
+    val mainSrc = "${project.projectDir}/src/main/java"
+    val kotlinSrc = "${project.projectDir}/src/main/kotlin"
 
-    doLast {
-        val reportDir = layout.buildDirectory.dir("customJacocoReportDir").get().asFile
-        val execFile = fileTree(layout.buildDirectory) { include("jacoco/testDebugUnitTest.exec") }
-        if (execFile.isEmpty()) {
-            logger.warn("No JaCoCo execution data found at build/jacoco/testDebugUnitTest.exec")
-        } else {
-            logger.lifecycle("Execution data found: ${execFile.files.joinToString()}")
-        }
-        if (reportDir.exists() && reportDir.listFiles()?.isNotEmpty() == true) {
-            logger.lifecycle("JaCoCo reports generated at: ${reportDir.absolutePath}")
-        } else {
-            logger.warn("No JaCoCo reports generated in ${reportDir.absolutePath}")
-        }
-    }
+    sourceDirectories.setFrom(files(listOf(mainSrc, kotlinSrc)))
+    classDirectories.setFrom(files(listOf(debugTree)))
+    executionData.setFrom(fileTree(buildDir).include("jacoco/testDebugUnitTest.exec"))
 }
 
 tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
-    dependsOn("testDebugUnitTest", "jacocoTestReport")
-    group = "Verification"
-    description = "Verify JaCoCo coverage metrics."
+    dependsOn("testDebugUnitTest")
+
+    val debugTree = fileTree("${buildDir}/tmp/kotlin-classes/debug")
+    classDirectories.setFrom(files(listOf(debugTree)))
+    executionData.setFrom(fileTree(buildDir).include("jacoco/testDebugUnitTest.exec"))
 
     violationRules {
         rule {
             limit {
-                minimum = BigDecimal("0.0")
+                minimum = 0.80.toBigDecimal()
             }
         }
     }
-
-    val javaClasses = fileTree(layout.buildDirectory.dir("classes/java/debug")) {
-        exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*")
-    }
-    val kotlinClasses = fileTree(layout.buildDirectory.dir("classes/kotlin/debug")) {
-        exclude("**/R.class", "**/R$*.class", "**/BuildConfig.*", "**/Manifest*.*")
-    }
-    classDirectories.setFrom(files(javaClasses, kotlinClasses))
-    sourceDirectories.setFrom(files("src/main/java", "src/main/kotlin"))
-    executionData.setFrom(fileTree(layout.buildDirectory) {
-        include("jacoco/testDebugUnitTest.exec")
-    })
 }
-
-tasks.register("testCoverage") {
-    group = "Verification"
-    description = "Runs unit tests and generates JaCoCo coverage report."
-    dependsOn("testDebugUnitTest", "jacocoTestReport")
-}
-
 
 
 firebaseAppDistribution {
