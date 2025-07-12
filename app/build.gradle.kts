@@ -63,7 +63,7 @@ jacoco {
 }
 
 
-tasks.register<JacocoReport>("jacocoTestReport") {
+tasks.register<JacocoReport>("testCoverage") {
     dependsOn("testDebugUnitTest")
 
     reports {
