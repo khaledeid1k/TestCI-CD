@@ -61,7 +61,15 @@ jacoco {
 
     toolVersion = "0.8.12"
 }
-
+subprojects {
+    afterEvaluate {
+        tasks.withType<Test> {
+            configure<JacocoTaskExtension> {
+                isIncludeNoLocationClasses = true
+            }
+        }
+    }
+}
 
 tasks.register<JacocoReport>("testCoverage") {
     dependsOn("testDebugUnitTest")
