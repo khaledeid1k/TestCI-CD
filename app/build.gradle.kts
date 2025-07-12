@@ -69,8 +69,8 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     reports {
         xml.required.set(true)
         html.required.set(true)
-        xml.outputLocation.set(file("${buildDir}/reports/jacoco/testCoverage/testCoverage.xml"))
-        html.outputLocation.set(file("${buildDir}/reports/jacoco/html"))
+        xml.outputLocation.set(layout.buildDirectory.file("reports/jacoco/testCoverage/testCoverage.xml").get().asFile)
+        html.outputLocation.set(layout.buildDirectory.dir("reports/jacoco/html").get().asFile)
     }
 
     val fileFilter = listOf(
@@ -85,14 +85,19 @@ tasks.register<JacocoReport>("jacocoTestReport") {
         "**/*Dagger*.*",
         "**/*Hilt*.*"
     )
-    val debugTree = fileTree(mapOf("dir" to "$buildDir/intermediates/classes/debug", "excludes" to fileFilter))
+    val debugTree = fileTree(mapOf(
+        "dir" to layout.buildDirectory.dir("intermediates/classes/debug").get().asFile,
+        "excludes" to fileFilter
+    ))
     val mainSrc = "${project.projectDir}/src/main/java"
 
     sourceDirectories.setFrom(files(mainSrc))
     classDirectories.setFrom(files(debugTree))
-    executionData.setFrom(fileTree(mapOf("dir" to "$buildDir", "includes" to listOf("jacoco/testDebugUnitTest.exec"))))
+    executionData.setFrom(fileTree(mapOf(
+        "dir" to layout.buildDirectory.get().asFile,
+        "includes" to listOf("jacoco/testDebugUnitTest.exec")
+    )))
 }
-
 
 
 firebaseAppDistribution {
