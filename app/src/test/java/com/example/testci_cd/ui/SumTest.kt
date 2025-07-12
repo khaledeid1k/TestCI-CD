@@ -10,6 +10,6 @@ class SumTest {
     fun testSumTwoNumbers() {
         val sum = Sum()
         val result = sum.sumTwoNumbers(2, 3)
-        assertEquals(5, result, "Expected 5, but got $result")
+        assertEquals(6, result, "Expected 5, but got $result")
     }
 }
