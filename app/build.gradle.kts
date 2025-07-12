@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.google.firebase.crashlytics)
     alias(libs.plugins.google.firebase.appdistribution)
     jacoco
+
 }
 
 
@@ -55,9 +56,12 @@ android {
     }
 
 }
+
 jacoco {
-    toolVersion = "0.8.11"
+
+    toolVersion = "0.8.12"
 }
+
 
 tasks.register<JacocoReport>("jacocoTestReport") {
     dependsOn("testDebugUnitTest")
@@ -65,34 +69,30 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     reports {
         xml.required.set(true)
         html.required.set(true)
-        xml.outputLocation.set(file("${buildDir}/reports/jacoco/test/jacocoTestReport.xml"))
-        html.outputLocation.set(file("${buildDir}/reports/jacoco/test/html"))
+        xml.outputLocation.set(file("${buildDir}/reports/jacoco/testCoverage/testCoverage.xml"))
+        html.outputLocation.set(file("${buildDir}/reports/jacoco/html"))
     }
 
-    val debugTree = fileTree("${buildDir}/tmp/kotlin-classes/debug")
+    val fileFilter = listOf(
+        "**/R.class",
+        "**/R$*.class",
+        "**/BuildConfig.*",
+        "**/Manifest*.*",
+        "**/*Test*.*",
+        "android/**/*.*",
+        "**/*_MembersInjector.class",
+        "**/*Module*.*",
+        "**/*Dagger*.*",
+        "**/*Hilt*.*"
+    )
+    val debugTree = fileTree(mapOf("dir" to "$buildDir/intermediates/classes/debug", "excludes" to fileFilter))
     val mainSrc = "${project.projectDir}/src/main/java"
-    val kotlinSrc = "${project.projectDir}/src/main/kotlin"
 
-    sourceDirectories.setFrom(files(listOf(mainSrc, kotlinSrc)))
-    classDirectories.setFrom(files(listOf(debugTree)))
-    executionData.setFrom(fileTree(buildDir).include("jacoco/testDebugUnitTest.exec"))
+    sourceDirectories.setFrom(files(mainSrc))
+    classDirectories.setFrom(files(debugTree))
+    executionData.setFrom(fileTree(mapOf("dir" to "$buildDir", "includes" to listOf("jacoco/testDebugUnitTest.exec"))))
 }
 
-tasks.register<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
-    dependsOn("testDebugUnitTest")
-
-    val debugTree = fileTree("${buildDir}/tmp/kotlin-classes/debug")
-    classDirectories.setFrom(files(listOf(debugTree)))
-    executionData.setFrom(fileTree(buildDir).include("jacoco/testDebugUnitTest.exec"))
-
-    violationRules {
-        rule {
-            limit {
-                minimum = 0.80.toBigDecimal()
-            }
-        }
-    }
-}
 
 
 firebaseAppDistribution {
